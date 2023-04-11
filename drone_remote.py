@@ -1,5 +1,5 @@
-import os ,sys, hashlib
-import pywifi 
+import os , hashlib
+import calendar
 import time
 import pyttsx3
 import webbrowser
@@ -7,9 +7,10 @@ import datetime
 import wikipedia
 import speech_recognition as sr
 import socket,smtplib
-import time, serial ,serialization
+import time, serial
 from geopy.geocoders import Nominatim
 import string, random
+
 
 engine = pyttsx3.init('sapi5')
 voices = engine.getProperty('voices')
@@ -59,6 +60,7 @@ def socket_conn_1():
     socket1.starttls()
     username = input("[+] enter your email : ")
     passwd = input("[+] enter your password : ")
+    socket1.login(username, passwd)
 
 def logingmail():
     email = input("[+] enter your email : ")
@@ -177,10 +179,14 @@ def conn_drone():
     print(f'Response from server: {response}')
     client_socket.close()
 
+def calender_ai():
+    year = int(input("Enter the year: "))
+    month = int(input("Enter the month: "))
+    print(calendar.month(year, month))
 
 if __name__ == "__main__":
     wishme()
-
+    calender_ai()
     while True:
         query = takecommand().lower()
         
