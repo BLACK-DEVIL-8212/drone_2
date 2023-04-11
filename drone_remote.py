@@ -154,9 +154,24 @@ def conn_drone():
     host = socket.gethostname()
     port = 12345
     client_socket.connect((host, port))
+    def move_right():
+        pass
+    def move_left():
+        pass
+    def move_front():
+        pass
+    def back_on_position():
+        pass
     drncontrols()
     def drncontrols():
-        pass
+        if "move right" in query:
+            move_right()
+        if "move left"  in query:
+            move_left()
+        if "move front" in query:
+            move_front()
+        if "come back" in query:
+            back_on_position()
     client_socket.send(drncontrols().encode('utf-8'))
     response = client_socket.recv(1024).decode('utf-8')
     print(f'Response from server: {response}')
