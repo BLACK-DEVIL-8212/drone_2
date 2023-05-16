@@ -1,22 +1,12 @@
-import os , hashlib
 import calendar
-import time
 import pyttsx3
-import webbrowser
 import datetime
-import wikipedia
 import speech_recognition as sr
-import socket,smtplib
-import time, serial
-from geopy.geocoders import Nominatim
-import string, random
-
 
 engine = pyttsx3.init('sapi5')
 voices = engine.getProperty('voices')
 #print(voices[1].id)
 engine.setProperty('voice',voices[1].id)
-os.cpu_count()
 
 def speak(audio):
     engine.say(audio)
@@ -54,40 +44,6 @@ def takecommand():
 
     return query
 
-def socket_conn_1():
-    socket1 = smtplib.SMTP('smtp.gmail.com',587)
-    socket1.ehlo()
-    socket1.starttls()
-    username = input("[+] enter your email : ")
-    passwd = input("[+] enter your password : ")
-    socket1.login(username, passwd)
-
-def logingmail():
-    email = input("[+] enter your email : ")
-    password = input("[+] enter your password : ")
-    try:
-        a =socket_conn_1()
-        a.socket1.sendmail(email,email,password)
-        print("[+] mail sent sucessfully")
-    except Exception as e:
-        print(e)
-
-def hrcx():
-    HOST = 'localhost'
-    PORT = 8000
-
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-        s.bind((HOST, PORT))
-        s.listen()
-        speak(f"Server listening on port {PORT}")
-        conn, addr = s.accept()
-        with conn:
-            print(f"Connected by {addr}")
-            while True:
-                data = conn.recv(1024)
-                if not data:
-                    break
-                conn.sendall(data)
 
 def track_location():
     address = input("Enter address: ")
@@ -100,85 +56,6 @@ def track_location():
     else:
         print("Location not found.")
 
-def hashpass():
-    target_hash = input("enter the hash : ")
-    i =0
-    while True:
-        input_str = str(i).encode('utf-8')
-        hashed_str = hashlib.md5(input_str).hexdigest()
-        if hashed_str == target_hash:
-            print("[+] hash found sucessfully")
-            print("input_str",input_str.decode('utf-8'))
-            print('Hash : ',hashed_str)
-            break
-        i += 1
-
-def satelight_comm():
-    ser = serial.Serial('/dev/ttyUSB0',9600,timeout=1)
-    time.sleep(5)
-    ser.write(b"AT&K0\r")
-    response = ser.readline().decode('utf-8')
-    print("Modem response:", response)
-    ser.write(b"AT+CREG?\r")
-    response = ser.readline().decode("utf-8")
-    print("Modem response: ", response)
-    ser.close()
-
-def artificial_gsm():
-    ser = serial.Serial('/dev/ttyUSB0',9600,timeout=1)
-    time.sleep(5)
-    ser.write(b"AT\r")
-    resoponse = ser.readline().decode('utf-8')
-    print("Modem response: " + resoponse)
-    ser.write(b"AT+CMGF=1\r")
-    response = ser.readline().decode('utf-8')
-    print("Modem response: " + response)
-    ser.write(b'"AT+CMGS="+1234567890\r')
-    time.sleep(1)
-    ser.write(b'this is a test message from python!\r')
-    ser.write(bytes([26]))
-    response = ser.readline().decode('utf-8')
-    print("Modem response: " + response)
-    ser.close()
-
-def passwd_generator():
-    def generate_password(length):
-        letters = string.ascii_letters + string.digits + string.punctuation
-        password = ''.join(random.choice(letters) for i in range(length))
-        return password
-
-    length = int(input("Enter the length of the password: "))
-    password = generate_password(length)
-    print("Your new password is:", password)
-
-def conn_drone():
-    client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    host = socket.gethostname()
-    port = 12345
-    client_socket.connect((host, port))
-    def move_right():
-        pass
-    def move_left():
-        pass
-    def move_front():
-        pass
-    def back_on_position():
-        pass
-    drncontrols()
-    def drncontrols():
-        if "move right" in query:
-            move_right()
-        if "move left"  in query:
-            move_left()
-        if "move front" in query:
-            move_front()
-        if "come back" in query:
-            back_on_position()
-    client_socket.send(drncontrols().encode('utf-8'))
-    response = client_socket.recv(1024).decode('utf-8')
-    print(f'Response from server: {response}')
-    client_socket.close()
-
 def calender_ai():
     year = int(input("Enter the year: "))
     month = int(input("Enter the month: "))
@@ -190,38 +67,8 @@ if __name__ == "__main__":
     while True:
         query = takecommand().lower()
         
-        if "wikipedia" in query:
-            speak("[+] seraching wiki ...")
-            query = query.replace("wikipedia","")
-            results = wikipedia.sumary(query,sentences=2)
-            speak(results)
-
-        elif "track a location" in query:
+        if "track a location" in query:
             track_location()
-
-        elif "hello jarvis" in query:
-            speak("pleasure meeting you sir")
-
-        elif "open youtube" in query:
-            webbrowser.open("youtube.com")
-
-        elif "open google" in query:
-            webbrowser.open("google.com")
-        
-        elif "bring drone to me" in query:
-            conn_drone()
-        
-        elif "make connection to server 1" in query:
-            socket_conn_1()
-        
-        elif "play a music" in query:
-            webbrowser.open("https://youtu.be/3iR-g-bYEYI")
-        
-        elif "open porn" in query:
-            webbrowser.open("t.me/pornhub8756")
-        
-        elif"connect to server" in query:
-            hrcx()
             
         elif "jarvis quit" in query:
             break
