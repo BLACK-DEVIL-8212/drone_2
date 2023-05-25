@@ -1,74 +1,59 @@
-import calendar
-import pyttsx3
-import datetime
 import speech_recognition as sr
+import socket
 
-engine = pyttsx3.init('sapi5')
-voices = engine.getProperty('voices')
-#print(voices[1].id)
-engine.setProperty('voice',voices[1].id)
+class DroneRemote:
+    def __init__(self, host, port):
+        self.host = host
+        self.port = port
+        self.client_socket = None
 
-def speak(audio):
-    engine.say(audio)
-    print(audio)
-    engine.runAndWait()
+    def connect(self):
+        self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.client_socket.connect((self.host, self.port))
+        print("Connected to the drone.")
 
-def wishme():
-    hour = int(datetime.datetime.now().hour)
-    if hour >= 0 and hour <12:
-        speak("good morning sir")
-    elif hour >= 12 and hour<= 18:
-        speak("good afternoon sir")
-    elif hour>= 18 and hour <21:
-        speak("good evening sir")
-    else:
-        speak("good night sir")
+    def send_command(self, command):
+        self.client_socket.send(command.encode())
 
-def takecommand():
-    r = sr.Recognizer()
-    mic = sr.Microphone()
-    with mic as source:
-        print("[+] LISTENING ... ")
-        r.pause_threshold = 0
-        r.energy_threshold = 10
-        audio = sr.Recognizer().listen(source)
-    
-    try:
-        print("[+] RECOGNIZING ...")
-        query = r.recognize_google(audio, language='en-in')
-        print(f"blackdevil:~ {query}\n")
+    def disconnect(self):
+        self.client_socket.close()
+        print("Disconnected from the drone.")
 
-    except Exception as e:
-        speak("say that again please !")
-        return "None"
-
-    return query
-
-
-def track_location():
-    address = input("Enter address: ")
-
-    geolocator = Nominatim(user_agent="location_tracker")
-    location = geolocator.geocode(address)
-
-    if location is not None:
-        print(f"Latitude: {location.latitude}, Longitude: {location.longitude}")
-    else:
-        print("Location not found.")
-
-def calender_ai():
-    year = int(input("Enter the year: "))
-    month = int(input("Enter the month: "))
-    print(calendar.month(year, month))
-
-if __name__ == "__main__":
-    wishme()
-    calender_ai()
-    while True:
-        query = takecommand().lower()
+    def recognize_speech(self):
+        r = sr.Recognizer()
+        with sr.Microphone() as source:
+            print("Listening...")
+            audio = r.listen(source)
         
-        if "track a location" in query:
-            track_location()
-            
-        elif "jarvis quit" in query:
-            break
+        try:
+            text = r.recognize_google(audio)
+            print("Recognized speech:", text)
+            return text
+        except sr.UnknownValueError:
+            print("Speech recognition could not understand audio.")
+        except sr.RequestError as e:
+            print("Speech recognition service error:", str(e))
+
+    def run(self):
+        self.connect()
+        while True:
+            command = self.recognize_speech()
+            if command == "take off":
+                self.send_command("takeoff")
+            elif command == "land":
+                self.send_command("land")
+            elif command == "move forward":
+                self.send_command("forward")
+            elif command == "move backward":
+                self.send_command("backward")
+            elif command == "stop":
+                self.send_command("stop")
+            elif command == "disconnect":
+                self.disconnect()
+                break
+            else:
+                print("Unknown command:", command)
+
+# Example usage
+remote = DroneRemote('localhost', 5000)  # Replace with the drone's IP address and port
+remote.run()
